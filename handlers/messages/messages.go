@@ -14,8 +14,9 @@ import (
 )
 
 type Message struct {
-	Message  string `json:"message"`
-	SendUser string `json:"send_user"`
+	Message    string `json:"message"`
+	FromOthers bool   `json:"from_others"`
+	SendTime   string `json:"send_time"`
 }
 
 type MessageRoom struct {
