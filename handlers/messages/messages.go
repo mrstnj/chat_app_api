@@ -2,28 +2,17 @@ package messages
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/mrstnj/chat_app_api/repository"
+	"github.com/mrstnj/chat_app_api/services"
 )
 
-type Message struct {
-	Message    string `json:"message"`
-	FromOthers bool   `json:"from_others"`
-	SendTime   string `json:"send_time"`
-}
-
-type MessageRoom struct {
-	Messages []Message `json:"messages"`
-}
-
-func GetAllMessagesHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func initDynamoDB() (*dynamodb.Client, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
@@ -33,24 +22,19 @@ func GetAllMessagesHandler(request events.APIGatewayProxyRequest) (events.APIGat
 		o.BaseEndpoint = aws.String("http://dynamodb-local:8000/")
 	})
 
-	out, err := client.GetItem(context.TODO(), &dynamodb.GetItemInput{
-		TableName: aws.String("message_rooms"),
-		Key: map[string]types.AttributeValue{
-			"room_id": &types.AttributeValueMemberN{Value: "1"},
-		},
-	})
+	return client, nil
+}
+
+func GetAllMessagesHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	client, err := initDynamoDB()
 	if err != nil {
-		log.Fatalf("failed to get item, %v", err)
+		log.Fatalf("failed to connect DynamoDB, %v", err)
 	}
 
-	var room MessageRoom
-	if err := attributevalue.UnmarshalMap(out.Item, &room); err != nil {
-		log.Fatalf("failed to unmarshal result item, %v", err)
-	}
-
-	messagesJSON, err := json.Marshal(room.Messages)
+	message := services.NewMessage(repository.NewMessageRepository(client))
+	messagesJSON, err := message.GetAllMessages()
 	if err != nil {
-		log.Fatalf("failed to marshal messages, %v", err)
+		log.Fatalf("failed to connect DynamoDB, %v", err)
 	}
 
 	return events.APIGatewayProxyResponse{
