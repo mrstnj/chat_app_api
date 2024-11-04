@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
-	
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	e "github.com/mrstnj/chat_app_api/error"
 	_interface "github.com/mrstnj/chat_app_api/repository/interface"
-	"log"
 )
 
 type Message struct {
@@ -38,7 +38,7 @@ func (r *MessageRepository) FindByRoomId() (*dynamodb.GetItemOutput, error) {
 		},
 	})
 	if err != nil {
-		log.Fatalf("failed to get item, %v", err)
+		return nil, e.DBError(err)
 	}
 
 	return out, nil
