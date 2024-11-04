@@ -1,4 +1,4 @@
-package main
+package helloworld
 
 import (
 	"testing"
@@ -43,7 +43,7 @@ func TestHandler(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			response, err := handler(testCase.request)
+			response, err := HelloWorldHandler(testCase.request)
 			if err != testCase.expectedError {
 				t.Errorf("Expected error %v, but got %v", testCase.expectedError, err)
 			}
