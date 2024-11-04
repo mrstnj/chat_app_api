@@ -2,39 +2,37 @@ package messages
 
 import (
 	"context"
-	"log"
+	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/mrstnj/chat_app_api/repository"
-	"github.com/mrstnj/chat_app_api/services"
+	_interface "github.com/mrstnj/chat_app_api/repository/interface"
+	"log"
 )
 
-func initDynamoDB() (*dynamodb.Client, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-1"))
-	if err != nil {
-		log.Fatalf("unable to load SDK config, %v", err)
-	}
-
-	client := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
-		o.BaseEndpoint = aws.String("http://dynamodb-local:8000/")
+func GetAllMessagesHandler(client _interface.DynamoDBClient, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	out, err := client.GetItem(context.TODO(), &dynamodb.GetItemInput{
+		TableName: aws.String("message_rooms"),
+		Key: map[string]types.AttributeValue{
+			"room_id": &types.AttributeValueMemberN{Value: "1"},
+		},
 	})
-
-	return client, nil
-}
-
-func GetAllMessagesHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	client, err := initDynamoDB()
 	if err != nil {
-		log.Fatalf("failed to connect DynamoDB, %v", err)
+		log.Fatalf("failed to get item, %v", err)
 	}
 
-	message := services.NewMessage(repository.NewMessageRepository(client))
-	messagesJSON, err := message.GetAllMessages()
+	var room repository.MessageRoom
+	if err := attributevalue.UnmarshalMap(out.Item, &room); err != nil {
+		log.Fatalf("failed to unmarshal result item, %v", err)
+	}
+
+	messagesJSON, err := json.Marshal(room.Messages)
 	if err != nil {
-		log.Fatalf("failed to connect DynamoDB, %v", err)
+		log.Fatalf("failed to marshal messages, %v", err)
 	}
 
 	return events.APIGatewayProxyResponse{
