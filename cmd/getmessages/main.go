@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/mrstnj/chat_app_api/handlers/message"
 	_interface "github.com/mrstnj/chat_app_api/repository/interface"
-	"log"
 )
 
 func main() {
@@ -18,14 +17,21 @@ func main() {
 }
 
 func handleAPIGatewayRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	client, _ := initDynamoDB()
+	client, err := initDynamoDB()
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 503,
+			Body:       `{"message":"database operation failed"}`,
+			Headers:    map[string]string{"Content-Type": "application/json"},
+		}, nil
+	}
 	return message.GetAllMessagesHandler(client, request)
 }
 
 func initDynamoDB() (_interface.DynamoDBClient, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
-		log.Fatalf("unable to load SDK config, %v", err)
+		return nil, err
 	}
 
 	client := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
