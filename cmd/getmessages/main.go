@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"log"
-
+	
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/mrstnj/chat_app_api/handlers/messages"
+	"github.com/mrstnj/chat_app_api/handlers/message"
 	_interface "github.com/mrstnj/chat_app_api/repository/interface"
+	"log"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 
 func handleAPIGatewayRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	client, _ := initDynamoDB()
-	return messages.GetAllMessagesHandler(client, request)
+	return message.GetAllMessagesHandler(client, request)
 }
 
 func initDynamoDB() (_interface.DynamoDBClient, error) {

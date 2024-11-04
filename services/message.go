@@ -2,24 +2,16 @@ package services
 
 import (
 	"encoding/json"
-	"log"
-
+	
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/mrstnj/chat_app_api/repository"
+	_interface "github.com/mrstnj/chat_app_api/repository/interface"
+	"log"
 )
 
-type Message struct {
-	messageRepo *repository.MessageRepository
-}
-
-func NewMessage(messageRepo *repository.MessageRepository) *Message {
-	return &Message{
-		messageRepo: messageRepo,
-	}
-}
-
-func (s *Message) GetAllMessages() ([]byte, error) {
-	out, err := s.messageRepo.GetAllMessages()
+func GetAllMessages(client _interface.DynamoDBClient) ([]byte, error) {
+	message := repository.NewMessageRepository(client)
+	out, err := message.FindByRoomId()
 	if err != nil {
 		log.Fatalf("failed to unmarshal result item, %v", err)
 	}

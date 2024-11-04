@@ -1,4 +1,4 @@
-package messages
+package message
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/golang/mock/gomock"
 	"github.com/mrstnj/chat_app_api/repository"
+	_mock "github.com/mrstnj/chat_app_api/repository/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +17,7 @@ func TestGetAllMessagesHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDynamoDB := repository.NewMockDynamoDBClient(ctrl)
+	mockDynamoDB := _mock.NewMockDynamoDBClient(ctrl)
 
 	mockDynamoDB.EXPECT().GetItem(gomock.Any(), gomock.Any()).Return(&dynamodb.GetItemOutput{
 		Item: map[string]types.AttributeValue{

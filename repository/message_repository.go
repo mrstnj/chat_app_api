@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"log"
-
+	
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	_interface "github.com/mrstnj/chat_app_api/repository/interface"
+	"log"
 )
 
 type Message struct {
@@ -20,16 +21,16 @@ type MessageRoom struct {
 }
 
 type MessageRepository struct {
-	client *dynamodb.Client
+	client _interface.DynamoDBClient
 }
 
-func NewMessageRepository(client *dynamodb.Client) *MessageRepository {
+func NewMessageRepository(client _interface.DynamoDBClient) *MessageRepository {
 	return &MessageRepository{
 		client: client,
 	}
 }
 
-func (r *MessageRepository) GetAllMessages() (*dynamodb.GetItemOutput, error) {
+func (r *MessageRepository) FindByRoomId() (*dynamodb.GetItemOutput, error) {
 	out, err := r.client.GetItem(context.TODO(), &dynamodb.GetItemInput{
 		TableName: aws.String("message_rooms"),
 		Key: map[string]types.AttributeValue{
