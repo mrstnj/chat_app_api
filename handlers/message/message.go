@@ -18,3 +18,15 @@ func GetAllMessagesHandler(client _interface.DynamoDBClient, request events.APIG
 		StatusCode: 200,
 	}, nil
 }
+
+func PutMessagesHandler(client _interface.DynamoDBClient, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	messagesJSON, err := services.PutMessages(client)
+	if err != nil {
+		return handlers.ErrorResponse(err)
+	}
+
+	return events.APIGatewayProxyResponse{
+		Body:       string(messagesJSON),
+		StatusCode: 200,
+	}, nil
+}

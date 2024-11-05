@@ -54,3 +54,23 @@ func (mr *MockDynamoDBClientMockRecorder) GetItem(ctx, params interface{}, optFn
 	varargs := append([]interface{}{ctx, params}, optFns...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItem", reflect.TypeOf((*MockDynamoDBClient)(nil).GetItem), varargs...)
 }
+
+// PutItem mocks base method.
+func (m *MockDynamoDBClient) PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params}
+	for _, a := range optFns {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutItem", varargs...)
+	ret0, _ := ret[0].(*dynamodb.PutItemOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutItem indicates an expected call of PutItem.
+func (mr *MockDynamoDBClientMockRecorder) PutItem(ctx, params interface{}, optFns ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params}, optFns...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutItem", reflect.TypeOf((*MockDynamoDBClient)(nil).PutItem), varargs...)
+}

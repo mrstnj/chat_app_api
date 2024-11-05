@@ -17,6 +17,7 @@ type Message struct {
 }
 
 type MessageRoom struct {
+	RoomID   int       `json:"room_id"`
 	Messages []Message `json:"messages"`
 }
 
@@ -42,4 +43,18 @@ func (r *MessageRepository) FindByRoomId() (*dynamodb.GetItemOutput, error) {
 	}
 
 	return out, nil
+}
+
+func (r *MessageRepository) Update(item map[string]types.AttributeValue) error {
+	if _, err := r.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String("message_rooms"),
+		Item: map[string]types.AttributeValue{
+			"room_id":  &types.AttributeValueMemberN{Value: "1"},
+			"messages": item["Messages"],
+		},
+	}); err != nil {
+		return e.DBError(err)
+	}
+
+	return nil
 }
