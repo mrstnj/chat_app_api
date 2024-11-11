@@ -49,10 +49,10 @@ func PutMessages(client _interface.DynamoDBClient, req repository.Message) ([]by
 	}
 
 	room.Messages = append(room.Messages, repository.Message{
-		Message:    req.Message,
-		FromOthers: false,
-		SendUser:   req.SendUser,
-		SendTime:   time.Now(),
+		Message:     req.Message,
+		FromChatGPT: false,
+		SendUser:    req.SendUser,
+		SendTime:    time.Now(),
 	})
 
 	item, err := attributevalue.MarshalMap(room)

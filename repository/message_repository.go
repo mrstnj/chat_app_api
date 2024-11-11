@@ -12,10 +12,10 @@ import (
 )
 
 type Message struct {
-	Message    string    `json:"message"`
-	FromOthers bool      `json:"from_others"`
-	SendUser   string    `json:"send_user"`
-	SendTime   time.Time `json:"send_time"`
+	Message     string    `json:"message"`
+	FromChatGPT bool      `json:"from_others"`
+	SendUser    string    `json:"send_user"`
+	SendTime    time.Time `json:"send_time"`
 }
 
 type MessageRoom struct {
