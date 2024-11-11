@@ -24,7 +24,7 @@ func GetAllMessagesHandler(client _interface.DynamoDBClient, request events.APIG
 }
 
 func PutMessagesHandler(client _interface.DynamoDBClient, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var req repository.MessageRequest
+	var req repository.Message
 	if err := json.Unmarshal([]byte(request.Body), &req); err != nil {
 		return handlers.ErrorResponse(e.InvalidValueError("params", err))
 	}

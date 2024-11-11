@@ -1,3 +1,5 @@
+EVENT_FILE ?= events/event.json
+
 .PHONY: build
 build:
 	sam build --no-cached

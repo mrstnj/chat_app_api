@@ -11,13 +11,10 @@ import (
 	_interface "github.com/mrstnj/chat_app_api/repository/interface"
 )
 
-type MessageRequest struct {
-	Message string `json:"message"`
-}
-
 type Message struct {
 	Message    string    `json:"message"`
 	FromOthers bool      `json:"from_others"`
+	SendUser   string    `json:"send_user"`
 	SendTime   time.Time `json:"send_time"`
 }
 

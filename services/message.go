@@ -30,7 +30,7 @@ func GetAllMessages(client _interface.DynamoDBClient) ([]byte, error) {
 	return messagesJSON, nil
 }
 
-func PutMessages(client _interface.DynamoDBClient, req repository.MessageRequest) ([]byte, error) {
+func PutMessages(client _interface.DynamoDBClient, req repository.Message) ([]byte, error) {
 	message := repository.NewMessageRepository(client)
 
 	out, err := message.FindByRoomId()
@@ -49,9 +49,10 @@ func PutMessages(client _interface.DynamoDBClient, req repository.MessageRequest
 	}
 
 	room.Messages = append(room.Messages, repository.Message{
-		FromOthers: false,
-		SendTime:   time.Now(),
 		Message:    req.Message,
+		FromOthers: false,
+		SendUser:   req.SendUser,
+		SendTime:   time.Now(),
 	})
 
 	item, err := attributevalue.MarshalMap(room)

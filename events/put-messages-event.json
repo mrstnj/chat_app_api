@@ -1,5 +1,5 @@
 {
-    "body": "{\"message\": \"hello world\"}",
+    "body": "{\"message\": \"hello world\", \"send_user\": \"Ken\"}",
     "path": "/hello",
     "httpMethod": "PUT",
     "headers": {
