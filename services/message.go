@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	e "github.com/mrstnj/chat_app_api/error"
@@ -29,7 +30,7 @@ func GetAllMessages(client _interface.DynamoDBClient) ([]byte, error) {
 	return messagesJSON, nil
 }
 
-func PutMessages(client _interface.DynamoDBClient) ([]byte, error) {
+func PutMessages(client _interface.DynamoDBClient, req repository.MessageRequest) ([]byte, error) {
 	message := repository.NewMessageRepository(client)
 
 	out, err := message.FindByRoomId()
@@ -49,8 +50,8 @@ func PutMessages(client _interface.DynamoDBClient) ([]byte, error) {
 
 	room.Messages = append(room.Messages, repository.Message{
 		FromOthers: false,
-		SendTime:   "2024-10-01T12:30:45Z",
-		Message:    "new_message",
+		SendTime:   time.Now(),
+		Message:    req.Message,
 	})
 
 	item, err := attributevalue.MarshalMap(room)

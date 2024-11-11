@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -10,10 +11,14 @@ import (
 	_interface "github.com/mrstnj/chat_app_api/repository/interface"
 )
 
+type MessageRequest struct {
+	Message string `json:"message"`
+}
+
 type Message struct {
-	Message    string `json:"message"`
-	FromOthers bool   `json:"from_others"`
-	SendTime   string `json:"send_time"`
+	Message    string    `json:"message"`
+	FromOthers bool      `json:"from_others"`
+	SendTime   time.Time `json:"send_time"`
 }
 
 type MessageRoom struct {

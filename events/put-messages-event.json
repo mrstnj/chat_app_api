@@ -1,0 +1,9 @@
+{
+    "body": "{\"message\": \"hello world\"}",
+    "path": "/hello",
+    "httpMethod": "PUT",
+    "headers": {
+      "Content-Type": "application/json; charset=UTF-8"
+    }
+}
+  
