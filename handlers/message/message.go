@@ -3,6 +3,7 @@ package message
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -27,7 +28,7 @@ func GetAllMessagesHandler(client _interface.DynamoDBClient, request events.APIG
 	}, nil
 }
 
-func PutMessagesHandler(client _interface.DynamoDBClient, wsClient *apigatewaymanagementapi.Client, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func PutMessagesHandler(client _interface.DynamoDBClient, wsClient _interface.WebSocketClient, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	var req repository.Message
 	if err := json.Unmarshal([]byte(request.Body), &req); err != nil {
 		return handlers.ErrorResponse(e.InvalidValueError("params", err))
@@ -47,6 +48,7 @@ func PutMessagesHandler(client _interface.DynamoDBClient, wsClient *apigatewayma
 			ConnectionId: aws.String(strconv.Itoa(connectionId)),
 			Data:         messageData,
 		}); err != nil {
+			fmt.Println("tうつt")
 			return handlers.ErrorResponse(err)
 		}
 	}

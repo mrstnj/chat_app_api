@@ -33,7 +33,7 @@ func handleAPIGatewayRequest(request events.APIGatewayProxyRequest) (events.APIG
 	return message.PutMessagesHandler(client, wsClient, request)
 }
 
-func initDynamoDB() (_interface.DynamoDBClient, *apigatewaymanagementapi.Client, error) {
+func initDynamoDB() (_interface.DynamoDBClient, _interface.WebSocketClient, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-northeast-1"))
 	if err != nil {
 		return nil, nil, err
