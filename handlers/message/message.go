@@ -3,7 +3,6 @@ package message
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -48,7 +47,6 @@ func PutMessagesHandler(client _interface.DynamoDBClient, wsClient _interface.We
 			ConnectionId: aws.String(strconv.Itoa(connectionId)),
 			Data:         messageData,
 		}); err != nil {
-			fmt.Println("tうつt")
 			return handlers.ErrorResponse(err)
 		}
 	}
