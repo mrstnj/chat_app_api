@@ -31,15 +31,16 @@ func TestGetAllMessagesHandler(t *testing.T) {
 						"room_id": &types.AttributeValueMemberN{Value: "1"},
 						"messages": &types.AttributeValueMemberL{Value: []types.AttributeValue{
 							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
-								"message":    &types.AttributeValueMemberS{Value: "わんわん"},
-								"fromOthers": &types.AttributeValueMemberBOOL{Value: true},
+								"message":    &types.AttributeValueMemberS{Value: "Hello"},
+								"fromChatCPT": &types.AttributeValueMemberBOOL{Value: false},
+								"sendUser":   &types.AttributeValueMemberS{Value: "Ken"},
 								"sendTime":   &types.AttributeValueMemberS{Value: "2023-11-03T00:00:00Z"},
 							}},
 						}},
 					},
 				}, nil)
 			},
-			expectedBody:   `[{"message":"わんわん","from_others":true,"send_time":"2023-11-03T00:00:00Z"}]`,
+			expectedBody:   `[{"message":"Hello","from_others":false,"send_user":"Ken","send_time":"2023-11-03T00:00:00Z"}]`,
 			expectedStatus: 200,
 		},
 		{
