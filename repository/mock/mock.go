@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	apigatewaymanagementapi "github.com/aws/aws-sdk-go-v2/service/apigatewaymanagementapi"
 	dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -53,4 +54,67 @@ func (mr *MockDynamoDBClientMockRecorder) GetItem(ctx, params interface{}, optFn
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, params}, optFns...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItem", reflect.TypeOf((*MockDynamoDBClient)(nil).GetItem), varargs...)
+}
+
+// PutItem mocks base method.
+func (m *MockDynamoDBClient) PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params}
+	for _, a := range optFns {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutItem", varargs...)
+	ret0, _ := ret[0].(*dynamodb.PutItemOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutItem indicates an expected call of PutItem.
+func (mr *MockDynamoDBClientMockRecorder) PutItem(ctx, params interface{}, optFns ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params}, optFns...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutItem", reflect.TypeOf((*MockDynamoDBClient)(nil).PutItem), varargs...)
+}
+
+// MockWebSocketClient is a mock of WebSocketClient interface.
+type MockWebSocketClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockWebSocketClientMockRecorder
+}
+
+// MockWebSocketClientMockRecorder is the mock recorder for MockWebSocketClient.
+type MockWebSocketClientMockRecorder struct {
+	mock *MockWebSocketClient
+}
+
+// NewMockWebSocketClient creates a new mock instance.
+func NewMockWebSocketClient(ctrl *gomock.Controller) *MockWebSocketClient {
+	mock := &MockWebSocketClient{ctrl: ctrl}
+	mock.recorder = &MockWebSocketClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockWebSocketClient) EXPECT() *MockWebSocketClientMockRecorder {
+	return m.recorder
+}
+
+// PostToConnection mocks base method.
+func (m *MockWebSocketClient) PostToConnection(ctx context.Context, params *apigatewaymanagementapi.PostToConnectionInput, opts ...func(*apigatewaymanagementapi.Options)) (*apigatewaymanagementapi.PostToConnectionOutput, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, params}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PostToConnection", varargs...)
+	ret0, _ := ret[0].(*apigatewaymanagementapi.PostToConnectionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PostToConnection indicates an expected call of PostToConnection.
+func (mr *MockWebSocketClientMockRecorder) PostToConnection(ctx, params interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, params}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostToConnection", reflect.TypeOf((*MockWebSocketClient)(nil).PostToConnection), varargs...)
 }

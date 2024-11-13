@@ -1,3 +1,5 @@
+EVENT_FILE ?= events/event.json
+
 .PHONY: build
 build:
 	sam build --no-cached
@@ -8,7 +10,7 @@ run: build
 
 .PHONY: invoke-%
 invoke-%: build
-	sam local invoke $(subst invoke-,,$@) --docker-network lambda-local
+	sam local invoke $(subst invoke-,,$@) --docker-network lambda-local --event ${EVENT_FILE}
 
 .PHONY: test
 test:

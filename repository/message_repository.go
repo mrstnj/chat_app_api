@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -11,13 +12,16 @@ import (
 )
 
 type Message struct {
-	Message    string `json:"message"`
-	FromOthers bool   `json:"from_others"`
-	SendTime   string `json:"send_time"`
+	Message     string    `json:"message"`
+	FromChatGPT bool      `json:"from_others"`
+	SendUser    string    `json:"send_user"`
+	SendTime    time.Time `json:"send_time"`
 }
 
 type MessageRoom struct {
-	Messages []Message `json:"messages"`
+	RoomID        int       `dynamodbav:"room_id"`
+	ConnectionIds []int     `dynamodbav:"connection_ids"`
+	Messages      []Message `dynamodbav:"messages"`
 }
 
 type MessageRepository struct {
@@ -42,4 +46,19 @@ func (r *MessageRepository) FindByRoomId() (*dynamodb.GetItemOutput, error) {
 	}
 
 	return out, nil
+}
+
+func (r *MessageRepository) Update(item map[string]types.AttributeValue) error {
+	if _, err := r.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String("message_rooms"),
+		Item: map[string]types.AttributeValue{
+			"room_id":        item["room_id"],
+			"messages":       item["messages"],
+			"connection_ids": item["connection_ids"],
+		},
+	}); err != nil {
+		return e.DBError(err)
+	}
+
+	return nil
 }

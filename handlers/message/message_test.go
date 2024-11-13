@@ -31,15 +31,16 @@ func TestGetAllMessagesHandler(t *testing.T) {
 						"room_id": &types.AttributeValueMemberN{Value: "1"},
 						"messages": &types.AttributeValueMemberL{Value: []types.AttributeValue{
 							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
-								"message":    &types.AttributeValueMemberS{Value: "わんわん"},
-								"fromOthers": &types.AttributeValueMemberBOOL{Value: true},
-								"sendTime":   &types.AttributeValueMemberS{Value: "2023-11-03T00:00:00Z"},
+								"message":     &types.AttributeValueMemberS{Value: "Hello"},
+								"fromChatCPT": &types.AttributeValueMemberBOOL{Value: false},
+								"sendUser":    &types.AttributeValueMemberS{Value: "Ken"},
+								"sendTime":    &types.AttributeValueMemberS{Value: "2023-11-03T00:00:00Z"},
 							}},
 						}},
 					},
 				}, nil)
 			},
-			expectedBody:   `[{"message":"わんわん","from_others":true,"send_time":"2023-11-03T00:00:00Z"}]`,
+			expectedBody:   `[{"message":"Hello","from_others":false,"send_user":"Ken","send_time":"2023-11-03T00:00:00Z"}]`,
 			expectedStatus: 200,
 		},
 		{
@@ -63,6 +64,84 @@ func TestGetAllMessagesHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedStatus, response.StatusCode)
 			assert.JSONEq(t, testCase.expectedBody, response.Body)
+		})
+	}
+}
+
+func TestPutMessagesHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	testCases := []struct {
+		name           string
+		mockSetup      func(mockDynamoDB *_mock.MockDynamoDBClient)
+		expectedBody   string
+		expectedStatus int
+		expectError    bool
+	}{
+		{
+			name: "success case",
+			mockSetup: func(mockDynamoDB *_mock.MockDynamoDBClient) {
+				mockDynamoDB.EXPECT().GetItem(gomock.Any(), gomock.Any()).Return(&dynamodb.GetItemOutput{
+					Item: map[string]types.AttributeValue{
+						"room_id": &types.AttributeValueMemberN{Value: "1"},
+						"messages": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+								"message":     &types.AttributeValueMemberS{Value: "Hello"},
+								"fromChatCPT": &types.AttributeValueMemberBOOL{Value: false},
+								"sendUser":    &types.AttributeValueMemberS{Value: "Ken"},
+								"sendTime":    &types.AttributeValueMemberS{Value: "2023-11-03T00:00:00Z"},
+							}},
+						}},
+					},
+				}, nil)
+				mockDynamoDB.EXPECT().PutItem(gomock.Any(), gomock.Any()).Return(&dynamodb.PutItemOutput{}, nil)
+			},
+			expectedStatus: 200,
+		},
+		{
+			name: "DynamoDB GET error case",
+			mockSetup: func(mockDynamoDB *_mock.MockDynamoDBClient) {
+				mockDynamoDB.EXPECT().GetItem(gomock.Any(), gomock.Any()).Return(nil, fmt.Errorf("DynamoDB error"))
+			},
+			expectedStatus: 503,
+		},
+		{
+			name: "DynamoDB PUT error case",
+			mockSetup: func(mockDynamoDB *_mock.MockDynamoDBClient) {
+				mockDynamoDB.EXPECT().GetItem(gomock.Any(), gomock.Any()).Return(&dynamodb.GetItemOutput{
+					Item: map[string]types.AttributeValue{
+						"room_id": &types.AttributeValueMemberN{Value: "1"},
+						"messages": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+								"message":     &types.AttributeValueMemberS{Value: "Hello"},
+								"fromChatCPT": &types.AttributeValueMemberBOOL{Value: false},
+								"sendUser":    &types.AttributeValueMemberS{Value: "Ken"},
+								"sendTime":    &types.AttributeValueMemberS{Value: "2023-11-03T00:00:00Z"},
+							}},
+						}},
+					},
+				}, nil)
+				mockDynamoDB.EXPECT().PutItem(gomock.Any(), gomock.Any()).Return(nil, fmt.Errorf("DynamoDB error"))
+			},
+			expectedStatus: 503,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			mockDynamoDB := _mock.NewMockDynamoDBClient(ctrl)
+			mockWebSocket := _mock.NewMockWebSocketClient(ctrl)
+
+			testCase.mockSetup(mockDynamoDB)
+
+			request := events.APIGatewayProxyRequest{
+				Body: "{\"message\": \"hello world\", \"send_user\": \"Ken\"}",
+			}
+			response, err := PutMessagesHandler(mockDynamoDB, mockWebSocket, request)
+
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expectedStatus, response.StatusCode)
 		})
 	}
 }
