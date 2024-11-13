@@ -19,8 +19,9 @@ type Message struct {
 }
 
 type MessageRoom struct {
-	RoomID   int       `json:"room_id"`
-	Messages []Message `json:"messages"`
+	RoomID        int       `dynamodbav:"room_id"`
+	ConnectionIds []int     `dynamodbav:"connection_ids"`
+	Messages      []Message `dynamodbav:"messages"`
 }
 
 type MessageRepository struct {
@@ -51,8 +52,9 @@ func (r *MessageRepository) Update(item map[string]types.AttributeValue) error {
 	if _, err := r.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String("message_rooms"),
 		Item: map[string]types.AttributeValue{
-			"room_id":  &types.AttributeValueMemberN{Value: "1"},
-			"messages": item["Messages"],
+			"room_id":        item["room_id"],
+			"messages":       item["messages"],
+			"connection_ids": item["connection_ids"],
 		},
 	}); err != nil {
 		return e.DBError(err)

@@ -30,22 +30,21 @@ func GetAllMessages(client _interface.DynamoDBClient) ([]byte, error) {
 	return messagesJSON, nil
 }
 
-func PutMessages(client _interface.DynamoDBClient, req repository.Message) ([]byte, error) {
+func PutMessages(client _interface.DynamoDBClient, req repository.Message) (repository.MessageRoom, error) {
+	var room repository.MessageRoom
 	message := repository.NewMessageRepository(client)
 
 	out, err := message.FindByRoomId()
 	if err != nil {
-		return nil, e.DBError(err)
+		return room, e.DBError(err)
 	}
 
-	var room repository.MessageRoom
 	if err := attributevalue.UnmarshalMap(out.Item, &room); err != nil {
-		return nil, err
+		return room, err
 	}
 
-	messagesJSON, err := json.Marshal(room.Messages)
-	if err != nil {
-		return nil, err
+	if _, err = json.Marshal(room.Messages); err != nil {
+		return room, err
 	}
 
 	room.Messages = append(room.Messages, repository.Message{
@@ -57,12 +56,12 @@ func PutMessages(client _interface.DynamoDBClient, req repository.Message) ([]by
 
 	item, err := attributevalue.MarshalMap(room)
 	if err != nil {
-		return nil, err
+		return room, err
 	}
 
 	if err := message.Update(item); err != nil {
-		return nil, e.DBError(err)
+		return room, e.DBError(err)
 	}
 
-	return messagesJSON, nil
+	return room, nil
 }
