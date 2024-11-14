@@ -1,6 +1,6 @@
 {
-    "body": "{\"message\": \"hello world\", \"send_user\": \"Ken\"}",
-    "path": "/put_messages/v1",
+    "body": "{\"connection_id\": 1}",
+    "path": "/connect/v1",
     "httpMethod": "PUT",
     "headers": {
       "Content-Type": "application/json; charset=UTF-8"
