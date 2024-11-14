@@ -18,6 +18,10 @@ type Message struct {
 	SendTime    time.Time `json:"send_time"`
 }
 
+type ConnectionId struct {
+	ConnectionId int `json:"connection_id"`
+}
+
 type MessageRoom struct {
 	RoomID        int       `dynamodbav:"room_id"`
 	ConnectionIds []int     `dynamodbav:"connection_ids"`
@@ -48,7 +52,22 @@ func (r *MessageRepository) FindByRoomId() (*dynamodb.GetItemOutput, error) {
 	return out, nil
 }
 
-func (r *MessageRepository) Update(item map[string]types.AttributeValue) error {
+func (r *MessageRepository) UpdateMessages(item map[string]types.AttributeValue) error {
+	if _, err := r.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String("message_rooms"),
+		Item: map[string]types.AttributeValue{
+			"room_id":        item["room_id"],
+			"messages":       item["messages"],
+			"connection_ids": item["connection_ids"],
+		},
+	}); err != nil {
+		return e.DBError(err)
+	}
+
+	return nil
+}
+
+func (r *MessageRepository) UpdateConnectionIds(item map[string]types.AttributeValue) error {
 	if _, err := r.client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String("message_rooms"),
 		Item: map[string]types.AttributeValue{

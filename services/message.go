@@ -59,7 +59,7 @@ func PutMessages(client _interface.DynamoDBClient, req repository.Message) (repo
 		return room, err
 	}
 
-	if err := message.Update(item); err != nil {
+	if err := message.UpdateMessages(item); err != nil {
 		return room, e.DBError(err)
 	}
 
