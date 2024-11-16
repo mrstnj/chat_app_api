@@ -24,3 +24,17 @@ func ConnectHandler(client _interface.DynamoDBClient, request events.APIGatewayP
 		StatusCode: 200,
 	}, nil
 }
+
+func DisconnectHandler(client _interface.DynamoDBClient, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	var req repository.ConnectionId
+	if err := json.Unmarshal([]byte(request.Body), &req); err != nil {
+		return handlers.ErrorResponse(e.InvalidValueError("params", err))
+	}
+	if err := services.Disconnect(client, req); err != nil {
+		return handlers.ErrorResponse(err)
+	}
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+	}, nil
+}

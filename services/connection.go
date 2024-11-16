@@ -39,3 +39,43 @@ func Connect(client _interface.DynamoDBClient, req repository.ConnectionId) erro
 
 	return nil
 }
+
+func Disconnect(client _interface.DynamoDBClient, req repository.ConnectionId) error {
+	var room repository.MessageRoom
+	message := repository.NewMessageRepository(client)
+
+	out, err := message.FindByRoomId()
+	if err != nil {
+		return e.DBError(err)
+	}
+
+	if err := attributevalue.UnmarshalMap(out.Item, &room); err != nil {
+		return err
+	}
+
+	if _, err = json.Marshal(room.Messages); err != nil {
+		return err
+	}
+
+	index := -1
+	for i, id := range room.ConnectionIds {
+		if id == req.ConnectionId {
+			index = i
+			break
+		}
+	}
+	if index != -1 {
+		room.ConnectionIds = append(room.ConnectionIds[:index], room.ConnectionIds[index+1:]...)
+	}
+
+	item, err := attributevalue.MarshalMap(room)
+	if err != nil {
+		return err
+	}
+
+	if err := message.UpdateConnectionIds(item); err != nil {
+		return e.DBError(err)
+	}
+
+	return nil
+}
