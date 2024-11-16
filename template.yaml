@@ -107,7 +107,69 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
-
+  ChatWebSocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: ChatWebSocket
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.action"
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: $connect
+      AuthorizationType: NONE
+      OperationName: ConnectRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref ConnectInteg
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      OperationName: DisconnectRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref DisconnectInteg
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      RouteKey: sendMessage
+      AuthorizationType: NONE
+      OperationName: SendMessageRoute
+      Target: !Join
+        - "/"
+        - - "integrations"
+          - !Ref SendMessageInteg
+  ConnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: Connect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+  DisconnectInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: Disconnect Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DisconnectFunction.Arn}/invocations
+  SendMessageInteg:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref ChatWebSocket
+      Description: SendMessage Integration
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutMessagesFunction.Arn}/invocations
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
